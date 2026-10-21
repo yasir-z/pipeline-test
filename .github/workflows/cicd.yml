@@ -1,25 +1,27 @@
 name: Simple CI/CD Pipeline
+
 on:
-    push:
-        branches: 
-            - main
+  push:
+    branches:
+      - main
 
-jobs: 
-    simple-pipeline:
-        runs-on: ubuntu-latest
+jobs:
+  simple-pipeline:
+    runs-on: ubuntu-latest
+
     steps:
-        - name: checkout code
-          uses: actions/checkout@v7
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: pipeline setup
-          run: echo "Starting simple pipeline execution..."
-            
-        - name: build step
-          run: echo "This steps demonstrates the build"
+      - name: Pipeline setup
+        run: echo "Starting simple pipeline execution..."
 
-        - name: test step
-          run: echo "This step is for test"
+      - name: Build step
+        run: echo "This step demonstrates the build"
 
-        - name: deploy step
-          run: echo "This step is deployment of application"
+      - name: Test step
+        run: echo "This step is for testing"
+
+      - name: Deploy step
+        run: echo "This step is deployment of application"
 
