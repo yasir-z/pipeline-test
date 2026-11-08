@@ -11,7 +11,13 @@ pipeline{
 
         stage ("test the code"){
             steps {
-            echo "Testing the srouce code for quality and security"
+                echo "Testing the srouce code for quality and security"
+            }
+        }
+
+        stage ("build the docker image"){
+            steps {
+                echo "Build the docker image"
             }
         }
     
