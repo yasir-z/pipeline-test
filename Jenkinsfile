@@ -1,32 +1,14 @@
-pipeline{
-    agent any
-    
+pipeline {
+    agent any 
     stages {
-        stage ("check code"){
+        stage ("check"){
             steps {
-                echo "Checking srouce code repo..."
+                sh """
+                    test -f app/app.py
+                    test -f tests/tests_app.py
+                    test -f requirements.txt
+                """
             }
-
-        }
-
-        stage ("test the code"){
-            steps {
-                echo "Testing the srouce code for quality and security"
-            }
-        }
-
-        stage ("build the docker image"){
-            steps {
-                echo "Build the docker image"
-            }
-        }
-        
-        stage ("Deploy the application"){
-            steps {
-                echo "Deploy the application"
-            }
-        }
-    
+        }    
     }
-
 }
