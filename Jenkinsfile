@@ -20,6 +20,12 @@ pipeline{
                 echo "Build the docker image"
             }
         }
+        
+        stage ("Deploy the application"){
+            steps {
+                echo "Deploy the application"
+            }
+        }
     
     }
 
