@@ -8,6 +8,12 @@ pipeline{
             }
 
         }
+
+        stage ("test the code"){
+            steps {
+            echo "Testing the srouce code for quality and security"
+            }
+        }
     
     }
 
