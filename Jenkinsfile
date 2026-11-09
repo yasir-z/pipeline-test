@@ -20,7 +20,7 @@ pipeline {
                     pip install -r requirements.txt
                     flake8 . --exclude .venv
                     pytest tests/tests_app.py
-                    bandit -r .
+                    bandit -r . -x ./.venv,./tests
                 """    
             }
         }
