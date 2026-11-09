@@ -53,7 +53,7 @@ pipeline {
                     IMAGE_TAG="\${COMMIT_SHA}-\${BUILD_NUMBER}"
 
                     echo "Building Docker image with tag: my-flask-app:\${IMAGE_TAG}"
-                    docker built -t my-flask-app:\${IMAGE_TAG} .
+                    docker build -t my-flask-app:\${IMAGE_TAG} .
                 '''
             }
         }
