@@ -10,5 +10,17 @@ pipeline {
                 """
             }
         }    
-    }
+        stage("test"){
+            steps {
+                sh """
+                    python3 -m venv .venv
+                    source .venv/bin/activate
+                    pip install -r requirements.txt
+                    flake8 /app --max-line-length=120
+                    pytest
+                """
+            }
+        } 
+
+   }
 }
