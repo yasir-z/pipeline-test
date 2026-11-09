@@ -1,7 +1,7 @@
 pipeline {
     agent any 
     stages {
-        stage ("check"){
+        stage ("check") {
             steps {
                 sh """
                     test -f app/app.py
@@ -10,17 +10,15 @@ pipeline {
                 """
             }
         }    
-        stage("test"){
+        stage("test") {
             steps {
                 sh """
                     python3 -m venv .venv
-                    . .venv/bin/activate
-                    pip install -r requirements.txt
-                    flake8 /app --max-line-length=120
-                    pytest
+                    .venv/bin/pip install -r requirements.txt
+                    .venv/bin/flake8 app/ --max-line-length=120
+                    .venv/bin/pytest
                 """
             }
-        } 
-
+        }
    }
 }
