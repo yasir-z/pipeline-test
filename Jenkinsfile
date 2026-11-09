@@ -22,6 +22,7 @@ pipeline {
                     pytest tests/tests_app.py
                     bandit -r . -x ./.venv,./tests
                     pip-audit -r requirements.txt
+                    gitleaks detect --source . --verbose
                 """    
             }
         }
