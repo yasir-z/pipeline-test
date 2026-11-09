@@ -3,16 +3,16 @@ pipeline {
     stages {
         stage ("check") {
             steps {
-                sh """
+                sh '''
                     test -f app/app.py
                     test -f tests/tests_app.py
                     test -f requirements.txt
-                """
+                '''
             }
         }    
         stage("test & security") {
             steps {
-                sh """
+                sh '''
                     # 1. Virtual environment setup
                     if [ ! -d "./.venv" ]; then
                         python3 -m venv .venv
@@ -42,8 +42,22 @@ pipeline {
                     
                     # 5. Secret scanning run via local binary
                     ./bin/gitleaks detect --source . --verbose --redact
-                """
+                '''
+            }
+        }
+
+        stage("Docker Build"){
+            steps {
+                sh '''
+                    COMMIT_SHA=\$(git rev-parse --short HEAD)
+                    IMAGE_TAG="\${COMMIT_SHA}-\${BUILD_NUMBER}"
+
+                    echo "Building Docker image with tag: my-flask-app:\${IMAGE_TAG}"
+                    docker built -t my-flask-app:\${IMAGE_TAG} .
+                '''
             }
         }
     }
 }
+
+
