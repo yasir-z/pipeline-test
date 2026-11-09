@@ -52,7 +52,7 @@ pipeline {
                     IMAGE_TAG="\${COMMIT_SHA}-\${BUILD_NUMBER}"
 
                     echo "Scanning Docker image my-flask-app:\${IMAGE_TAG} for vulnerabilities..."
-                    trivy image --exit-code 1 --severity HIGH,CRITICAL my-flask-app:\${IMAGE_TAG}
+                    trivy image ---skip-version-check -exit-code 1 --severity HIGH,CRITICAL my-flask-app:\${IMAGE_TAG}
                 '''
             }
         }
