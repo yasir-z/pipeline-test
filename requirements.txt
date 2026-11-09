@@ -2,3 +2,5 @@ Flask
 gunicorn
 pytest
 flake8
+bandit
+pip-audit

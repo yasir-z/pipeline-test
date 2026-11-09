@@ -12,15 +12,21 @@ pipeline {
         }    
         stage("test") {
             steps {
-                sh """
-                    if [ ! -d ".venv" ]; then
-                        python3 -m venv .venv
-                    fi
-                    .venv/bin/pip install -r requirements.txt
-                    .venv/bin/flake8 app/ --max-line-length=120
-                    .venv/bin/pytest tests/tests_app.py -v
-                """
+                // Jenkins runs sh with "-e": the first failing command fails the build.
+                sh '''
+                    python3 -m venv .venv
+                    . .venv/bin/activate
+                    pip install -r requirements.txt
+                    pip install flake8 pytest bandit pip-audit
+ 
+                    echo "== Linter ==";                 flake8 . --exclude .venv
+                    echo "== Unit tests ==";             pytest tests/tests_app.py
+                    echo "== Integration tests ==";      pytest tests/tests_app.py
+                    echo "== Security scan (SAST) ==";   bandit -r . -x ./.venv,./tests
+                    echo "== Dependency scan ==";        pip-audit -r requirements.txt
+                    echo "== Secret leak scan ==";       gitleaks detect --source . --verbose
+                '''
             }
-        }
-   }
+        } 
+    }
 }
