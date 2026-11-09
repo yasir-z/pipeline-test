@@ -21,6 +21,7 @@ pipeline {
                     flake8 . --exclude .venv
                     pytest tests/tests_app.py
                     bandit -r . -x ./.venv,./tests
+                    pip-audit -r requirements.txt
                 """    
             }
         }
