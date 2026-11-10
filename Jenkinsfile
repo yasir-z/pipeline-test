@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         DOCKER_HUB_CREDENTIALS_ID = 'docker-hub-credentials'
-        DOCKER_REPO = 'yasirzafar/my-flask-app' // Apna Docker Hub username yahan confirm kar lein
+        DOCKER_REPO = 'shepherd777/my-flask-app' // Apna Docker Hub username yahan confirm kar lein
     }
 
     stages {
