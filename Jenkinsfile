@@ -68,9 +68,27 @@ pipeline {
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                         docker tag my-flask-app:${IMAGE_TAG} ${DOCKER_REPO}:${IMAGE_TAG}
                         docker push ${DOCKER_REPO}:${IMAGE_TAG}
+                        
                     '''
                 }
             }
         }
+        state("Deploy on kubernetes"){
+            steps{
+                sh '''
+                    echo "Applying Kubernetes manifests to kind cluster..."
+                    kubectl apply -f /k8s
+
+                    # Optional: Rollout status check karne ke liye taake pata chale pods ready ho gaye hain
+                    kubectl rollout status deployment/flask-app-deployment --timeout=60s
+                '''
+            }
+
+        }  
+
     }
 }
+
+
+
+
