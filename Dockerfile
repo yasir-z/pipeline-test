@@ -1,6 +1,9 @@
 # Python ka minimal slim image use kar rahe hain
 FROM python:3.12-slim
 
+# System packages ko update aur patch karein taake known CVEs remove ho jayein
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/
+
 # Working directory set karein
 WORKDIR /app
 
