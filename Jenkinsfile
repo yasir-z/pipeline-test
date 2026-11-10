@@ -56,5 +56,25 @@ pipeline {
                 '''
             }
         }
+        stage("Push docker image to registery"){
+            steps{
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        COMMIT_SHA=\$(git rev-parse --short HEAD)
+                        IMAGE_TAG="\${COMMIT_SHA}-\${BUILD_NUMBER}"
+
+                        # 1. Login to Docker Hub securely
+                        echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
+
+                        # 2. Tag local image for Docker Hub repo
+                        docker tag my-flask-app:\${IMAGE_TAG} ${DOCKER_REPO}:\${IMAGE_TAG}
+
+                        # 3. Push both tags
+                        docker push ${DOCKER_REPO}:\${IMAGE_TAG}    
+                    '''
+            }
+        
+        }
+
     }
 }
