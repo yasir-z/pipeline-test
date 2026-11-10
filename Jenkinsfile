@@ -73,18 +73,6 @@ pipeline {
                 }
             }
         }
-        state("Deploy on kubernetes"){
-            steps{
-                sh '''
-                    echo "Applying Kubernetes manifests to kind cluster..."
-                    kubectl apply -f /k8s
-
-                    # Optional: Rollout status check karne ke liye taake pata chale pods ready ho gaye hain
-                    kubectl rollout status deployment/flask-app-deployment --timeout=60s
-                '''
-            }
-
-        }  
 
     }
 }
