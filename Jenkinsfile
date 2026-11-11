@@ -109,25 +109,15 @@ pipeline {
                 docker rmi my-flask-app:$IMAGE_TAG $DOCKER_REPO:$IMAGE_TAG || true
             '''
         }
-
-    }
-    
         success {
             mail to: 'ysairch@gmail.com',
                  subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                  body: "Build and deploy succeeded.\nImage: ${env.DOCKER_REPO}:${env.IMAGE_TAG}\nDetails: ${env.BUILD_URL}"
         }
-
         failure {
             mail to: 'ysairch@gmail.com',
                  subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                  body: "The pipeline failed.\nLogs: ${env.BUILD_URL}console"
         }
     }
-
 }
-
-
-
-
-
