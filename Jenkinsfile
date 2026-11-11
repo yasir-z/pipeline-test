@@ -1,5 +1,13 @@
 pipeline {
     agent any 
+
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+        timestamps()
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+
     
     environment {
         DOCKER_HUB_CREDENTIALS_ID = 'docker-hub-credentials'
