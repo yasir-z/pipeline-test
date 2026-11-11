@@ -87,6 +87,19 @@ pipeline {
                 '''
             }
         }
+        stage("smoke test") {
+            steps{
+                sh '''
+                     kubectl run smoke-test-$BUILD_NUMBER --rm -i --restart=Never \
+                      --image=curlimages/curl:8.10.1 -- \
+                      curl -fsS --retry 5 --retry-delay 3 --retry-connrefused http://my-flask-app/health || {
+                        echo "Smoke test failed - rolling back"
+                        kubectl rollout undo deployment/my-flask-app
+                        exit 1
+                    }
+                '''
+                }
+        }        
 
     }
     post {
