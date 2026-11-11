@@ -73,7 +73,7 @@ pipeline {
                 }
             }
         }
-        stage("Deploy to Kind""Deploy to Kind") {
+        stage("Deploy to Kind Deploy to Kind") {
             steps {
                 sh '''
                     sed "s|IMAGE_PLACEHOLDER|$DOCKER_REPO:$IMAGE_TAG|" k8s/deployment.yaml | kubectl apply -f -
