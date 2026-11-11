@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_HUB_CREDENTIALS_ID = 'docker-hub-credentials'
         DOCKER_REPO = 'shepherd777/my-flask-app' // Apna Docker Hub username yahan confirm kar lein
-        IMAGE_TAG = '${env.GIT_COMMIT.take(7)}-{env.BUILD_NUMBER}'
+        IMAGE_TAG = "${env.GIT_COMMIT.take(7)}-${env.BUILD_NUMBER}"
     }
 
     stages {
