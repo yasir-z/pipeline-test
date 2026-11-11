@@ -62,7 +62,6 @@ pipeline {
             }
         }
         stage("Push docker image to registry") {
-            when { branch 'main' }
             steps {
                 withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
@@ -72,6 +71,20 @@ pipeline {
                         
                     '''
                 }
+            }
+        }
+        stage {
+            steps {
+                sh '''
+                    sed "s|IMAGE_PLACEHOLDER|$DOCKER_REPO:$IMAGE_TAG|" k8s/deployment.yaml | kubectl apply -f -
+                    kubectl apply -f k8s/service.yaml            
+                    kubectl rollout status deployment/my-flask-app --timeout=120s || {
+                        echo "Deployment failed - rolling back"
+                        kubectl rollout undo deployment/my-flask-app
+                        exit 1
+                    }
+
+                '''
             }
         }
 
