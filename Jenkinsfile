@@ -54,6 +54,7 @@ pipeline {
             }
         }
         stage("Push docker image to registry") {
+            when { branch 'main' }
             steps {
                 withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
