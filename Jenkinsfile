@@ -66,6 +66,16 @@ pipeline {
             }
         }
 
+        post {
+            always {
+                sh '''
+                docker logout || true
+                docker rmi my-flask-app:$IMAGE_TAG $DOCKER_REPO:$IMAGE_TAG || true
+                '''
+            }
+
+        }
+
     }
 }
 
