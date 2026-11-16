@@ -14,4 +14,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Lint with ruff
-        run: astral-sh/ruff-action@v3
+        uses: astral-sh/ruff-action@v3
