@@ -57,7 +57,7 @@ jobs:
             . 
       - name: Push docker image
         run: |
-            docker push shepherd777/my-python-app:${{ github.sha }} \
+            docker push shepherd777/my-python-app:${{ github.sha }} 
             docker push shepherd777/my-python-app:latest
     
 
