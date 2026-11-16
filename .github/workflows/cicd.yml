@@ -18,6 +18,9 @@ jobs:
         with: 
             python-version: '3.12'
 
+      - name: Install dependencies
+        uses: uv pip install -r requirements.txt
+
       - name: Lint with ruff
         uses: astral-sh/ruff-action@v3
 
