@@ -49,15 +49,19 @@ jobs:
             username: ${{ secrets.DOCKER_USERNAME }}
             password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: GET Git SHA
+        run: echo "SHORT_SHA=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
+
+
       - name: Build Docker Image
         run: |
             docker build \
-            -t shepherd777/my-python-app:${{ github.sha }} \
+            -t shepherd777/my-python-app:${{ env.SHORT_SHA }} \
             -t shepherd777/my-python-app:latest \
             . 
       - name: Push docker image
         run: |
-            docker push shepherd777/my-python-app:${{ github.sha }} 
+            docker push shepherd777/my-python-app:${{ env.SHORT_SHA }} 
             docker push shepherd777/my-python-app:latest
     
 
