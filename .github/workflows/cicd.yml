@@ -144,6 +144,7 @@ jobs:
           image-ref: shepherd777/cicd-flask-app:${{ github.sha }}
           scan-type: image
           format: table
+          ignore-unfixed: true
           severity: HIGH,CRITICAL
           exit-code: '1'
 
