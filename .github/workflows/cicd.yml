@@ -1,71 +1,166 @@
-name: Simple CI/CD Pipeline
+
+name: Flask Secure CI Pipeline
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: shepherd777/cicd-flask-app
+
 jobs:
-  simple-pipeline:
+
+  # JOB 1: Code quality and application testing
+  quality:
+    name: Lint and Test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies and tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff
+
+      - name: Check source files
+        run: |
+          test -f app/app.py
+          test -f requirements.txt
+          test -f Dockerfile
+
+      - name: Python linting
+        run: ruff check app tests
+
+      - name: Unit testing
+        run: pytest -v tests/unit
+
+      - name: Integration testing
+        run: pytest -v tests/integration
+
+
+  # JOB 2: Secrets detection
+  secrets-scan:
+    name: Git Secrets Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout full Git history
         uses: actions/checkout@v4
         with:
-            fetch-depth: 0
+          fetch-depth: 0
 
-      - name: python set-up
-        uses: actions/setup-python@v5
-        with: 
-            python-version: '3.12'
-
-      - name: Set-up uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Install dependencies
-        run:  uv pip install --system -r requirements.txt
-
-      - name: Lint with ruff
-        uses: astral-sh/ruff-action@v3
-
-      - name: SAST Testing 
-        run: bandit -r app/
-
-      - name: Unit Test with pytest
-        run: pytest
- 
-      - name: Dependency Scan
-        run: pip-audit -r requirements.txt 
-
-      - name: Gitleak test
+      - name: Scan repository for secrets
         uses: gitleaks/gitleaks-action@v2
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-      - name: Log in to Docker Hub
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  # JOB 3: Dependency scanning and SAST
+  security:
+    name: Dependency Scan and SAST
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit pip-audit
+
+      - name: Dependency vulnerability scan
+        run: pip-audit -r requirements.txt
+
+      - name: Static application security testing
+        run: bandit -r app -ll
+
+
+  # JOB 4: Dockerfile security
+  dockerfile-scan:
+    name: Dockerfile Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Scan Dockerfile
+        run: checkov --file Dockerfile --framework dockerfile
+
+
+  # JOB 5: Build, scan and publish container
+  container:
+    name: Build, Scan and Push
+    runs-on: ubuntu-latest
+
+    needs:
+      - quality
+      - secrets-scan
+      - security
+      - dockerfile-scan
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
+
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: shepherd777/cicd-flask-app:${{ github.sha }}
+          scan-type: image
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-            username: ${{ secrets.DOCKER_USERNAME }}
-            password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: GET Git SHA
-        run: echo "SHORT_SHA=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
-
-
-      - name: Build Docker Image
+      - name: Tag Docker image
         run: |
-            docker build \
-            -t shepherd777/my-python-app:${{ env.SHORT_SHA }} \
-            -t shepherd777/my-python-app:latest \
-            . 
-      - name: Push docker image
+          docker tag \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            ${{ env.IMAGE_NAME }}:latest
+
+      - name: Push image to Docker Hub
         run: |
-            docker push shepherd777/my-python-app:${{ env.SHORT_SHA }} 
-            docker push shepherd777/my-python-app:latest
-    
-
-            
-
-
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.IMAGE_NAME }}:latest
 

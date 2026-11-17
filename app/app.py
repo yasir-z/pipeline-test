@@ -3,11 +3,15 @@ from flask import Flask, jsonify
 app = Flask(__name__)
 
 
+def get_status():
+    return "running"
+
+
 @app.route("/")
 def home():
     return jsonify({
-        "message": "Hello from Jenkins CI/CD! with Argocd",
-        "status": "running"
+        "message": "Hello from Jenkins CI/CD!",
+        "status": get_status()
     })
 
 
@@ -17,4 +21,4 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)  # nosec B104
+    app.run(host="0.0.0.0", port=5000)

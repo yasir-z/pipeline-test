@@ -1,21 +1,21 @@
-# Python ka minimal slim image use kar rahe hain
 FROM python:3.12-slim
 
-# System packages ko update aur patch karein taake known CVEs remove ho jayein
-RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/
-
-# Working directory set karein
 WORKDIR /app
 
-# Requirements file copy kar ke dependencies install karein
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Application code copy karein
-COPY app/ app/
+RUN pip install --no-cache-dir -r requirements.txt \
+    && useradd --create-home appuser
 
-# Port expose karein
+COPY app/ ./app/
+
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE 5000
 
-# Application run karne ki command
-CMD ["python", "app/app.py"]
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')" || exit 1
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app.app:app"]
