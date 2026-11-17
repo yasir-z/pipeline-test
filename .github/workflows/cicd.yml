@@ -132,23 +132,23 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      - name: Extract Short Sha
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build Docker image
         run: |
           docker build --no-cache \
-            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
+            -t ${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }} .
 
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
         with:
-          image-ref: shepherd777/cicd-flask-app:${{ github.sha }}
+          image-ref: shepherd777/cicd-flask-app:${{ env.SHORT_SHA }}
           scan-type: image
           format: table
           ignore-unfixed: true
           severity: HIGH,CRITICAL
           exit-code: '1'
-
-      - name: Extract Short SHA
-        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV        
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
